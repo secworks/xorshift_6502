@@ -40,194 +40,53 @@
 //------------------------------------------------------------------
 // rol64bits(addr, bits)
 //
-// Macro to rotate 64 bit word, bits number of steps.
-//
+// Macro to rotate 32 bit word, bits number of steps.
 //------------------------------------------------------------------
-.macro rol64bits(addr, bits)
+.macro rol32bits(addr, bits)
 {
                         ldy #bits
-rol64_1:                lda addr
+rol32_1:                lda addr
                         rol
-                        rol addr + 7
-                        rol addr + 6
-                        rol addr + 5
-                        rol addr + 4
                         rol addr + 3
                         rol addr + 2
                         rol addr + 1
                         rol addr
                         dey
-                        bne rol64_1
+                        bne rol32_1
 }
 
+
 //------------------------------------------------------------------
-// ror64bits(addr, bits)
+// ror32bits(addr, bits)
 //
-// Macro to rotate a 64 bit word, bits number of steps right.
+// Macro to rotate a 32 bit word, bits number of steps right.
 //------------------------------------------------------------------
 .macro ror64bits(addr, bits)
 {
                         ldy #bits
-ror64_1:                lda addr + 7
+ror32_1:                lda addr + 3
                         ror
                         ror addr
                         ror addr + 1
                         ror addr + 2
                         ror addr + 3
-                        ror addr + 4
-                        ror addr + 5
-                        ror addr + 6
-                        ror addr + 7
                         dey
                         bne ror64_1
 }
 
 //------------------------------------------------------------------
-// rol13(addr)
+// xor32(addr0, addr1)
 //
-// Macro to rotate a 64 bit word, 13 bits left.
-// We do this by moving 16 bits left and then 3 bits right.
-// TODO: Implement.
+// Macro to xor two words together. The result ends up in addr0
 //------------------------------------------------------------------
-.macro rol13(addr)
-{
-                        :rol16(addr)
-                        :ror64bits(addr, 3)
-}
-
-//------------------------------------------------------------------
-// rol16(addr)
-//
-// Macro to rotate a 64 bit word, 16 bits left.
-// We do this by moving the bytes two steps.
-//------------------------------------------------------------------
-.macro rol16(addr)
-{
-                        lda addr
-                        sta tmp
-                        lda addr + 1
-                        sta tmp + 1
-
-                        ldx #$00
-rol16_1:                lda addr + 2, x
-                        sta addr, x
-                        inx
-                        cpx #$07
-                        bne rol16_1
-
-                        lda tmp
-                        sta addr + 6
-                        lda tmp + 1
-                        sta addr + 7
-}
-
-//------------------------------------------------------------------
-// rol17(addr)
-//
-// Macro to rotate a 64 bit word, 17 bits left.
-// We do this by moving 2 bytes left and then rotating 1 bit left.
-//------------------------------------------------------------------
-.macro rol17(addr)
-{
-                        :rol16(addr)
-                        :rol64bits(addr, 1)
-}
-
-//------------------------------------------------------------------
-// rol21(addr)
-//
-// Macro to rotate a 64 bit word, 21 bits left.
-// We do this by moving 3 bytes left and rotating 3 bits right.
-//------------------------------------------------------------------
-.macro rol21(addr)
-{
-                        // Move three bytes left.
-                        // Using tmp
-                        ldx #$02
-rol21_1:                lda addr, x
-                        sta tmp, x
-                        dex
-                        bpl rol21_1
-
-                        ldx #$00
-rol21_2:                lda addr + 3, x
-                        sta addr,x
-                        inx
-                        cpx #$07
-                        bne rol21_2
-
-                        ldx #$02
-rol21_3:                lda tmp, x
-                        sta addr + 5, x
-                        dex
-                        bpl rol21_3
-
-                        :ror64bits(addr, 3)
-}
-
-//------------------------------------------------------------------
-// rol32(addr)
-//
-// Macro to rotate a 64 bit word, 32 bits left.
-// We do this by moving 32 bits left via the temp bytes.
-//------------------------------------------------------------------
-.macro rol32(addr)
+.macro xor32(addr0, addr1)
 {
                         ldx #$03
-rol32_1:                lda addr, x
-                        sta tmp, x
-                        lda addr+4, x
-                        sta addr, x
-                        lda tmp, x
-                        sta addr + 4, x
-                        dex
-                        bpl rol32_1
-}
-
-//------------------------------------------------------------------
-// xor64(addr0, addr1)
-//
-// Macro to rotate 64 bit word bits number of steps.
-//------------------------------------------------------------------
-.macro xor64(addr0, addr1)
-{
-                        ldx #$07
-xor64_1:                lda addr0, x
+xor32_1:                lda addr0, x
                         eor addr1, x
                         sta addr0, x
                         dex
-                        bpl xor64_1
-}
-
-//------------------------------------------------------------------
-// add64(addr0, addr1)
-//
-// Macro to add two 64 bit words. Results in addr0.
-//------------------------------------------------------------------
-.macro add64(addr0, addr1)
-{
-                        ldx #$07
-                        clc
-add64_1:                lda addr0, x
-                        adc addr1, x
-                        sta addr0, x
-                        dex
-                        bpl add64_1
-}
-
-//------------------------------------------------------------------
-// mov64(addr0, addr1)
-//
-// Macro to move 64 bit word in addr1 into addr0
-//------------------------------------------------------------------
-.macro mov64(addr0, addr1)
-{
-                        ldx #$07
-                        clc
-mov64_1:                lda addr1, x
-                        sta addr0, x
-                        dex
-                        bpl mov64_1
+                        bpl xor32_1
 }
 
 //======================================================================
