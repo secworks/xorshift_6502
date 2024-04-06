@@ -38,16 +38,13 @@
 #importonce
 
 //------------------------------------------------------------------
-// rol64bits(addr, bits)
-//
-// Macro to rotate 32 bit word, bits number of steps.
+// rol32bits(addr, bits)
+// Macro to rotate 32 bit word, bits number of bits.
 //------------------------------------------------------------------
-.macro rol32bits(addr, bits)
-{
+.macro rol32bits(addr, bits) {
                         ldy #bits
-rol32_1:                lda addr
-                        rol
-                        rol addr + 3
+rol32_1:		clc
+        		rol addr + 3
                         rol addr + 2
                         rol addr + 1
                         rol addr
@@ -55,28 +52,24 @@ rol32_1:                lda addr
                         bne rol32_1
 }
 
-
 //------------------------------------------------------------------
 // ror32bits(addr, bits)
-//
 // Macro to rotate a 32 bit word, bits number of steps right.
 //------------------------------------------------------------------
-.macro ror64bits(addr, bits)
+.macro ror32bits(addr, bits)
 {
-                        ldy #bits
-ror32_1:                lda addr + 3
-                        ror
-                        ror addr
+        		ldy #bits
+ror32_1:		clc
+        		ror addr
                         ror addr + 1
                         ror addr + 2
                         ror addr + 3
                         dey
-                        bne ror64_1
+                        bne ror32_1
 }
 
 //------------------------------------------------------------------
 // xor32(addr0, addr1)
-//
 // Macro to xor two words together. The result ends up in addr0
 //------------------------------------------------------------------
 .macro xor32(addr0, addr1)
@@ -87,6 +80,19 @@ xor32_1:                lda addr0, x
                         sta addr0, x
                         dex
                         bpl xor32_1
+}
+
+//------------------------------------------------------------------
+// cpy32(addr0, addr1)
+// Macro to copy a 32-bit word from add0 to addr1.
+//------------------------------------------------------------------
+.macro cpy32(addr0, addr1)
+{
+                        ldx #$03
+cpy32_1:		lda addr0, x
+        		sta addr1, x
+			dex
+			bpl cpy32_1
 }
 
 //======================================================================
